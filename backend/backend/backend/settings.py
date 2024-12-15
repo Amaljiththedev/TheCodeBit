@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',                  # CORS headers middleware
     'channels',                     # Django Channels for WebSocket support
     'drf_yasg',                     # Swagger for API documentation
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ASGI_APPLICATION = 'backend.asgi.application'
+
+MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware', *MIDDLEWARE]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Replace with your frontend's URL
+]
+
+
+AUTH_USER_MODEL = 'users.CustomUser'  # Replace 'yourapp' with the app name where the model is defined
