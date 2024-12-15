@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "../login/label";
 import { Input } from "../login/Input";
 import { cn } from "@/utils/cn";
@@ -8,12 +8,53 @@ import {
   IconBrandGoogle,
   IconBrandOnlyfans,
 } from "@tabler/icons-react";
+import api from "@/utils/api";
 
+interface SignUpFormData {
+  username: string;
+  email: string;
+  password: string;
+}
 export function SignupFormDemo() {
+
+  const [formData, setFormData] = useState<SignUpFormData>({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState<string>('');
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };  
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form submitted");
   };
+
+  try {
+    const response = await api.post("/users/sign_up/", formData);
+    
+    if (response.status===201){
+      alert("signup sucessful");
+    }else{
+      setError("Signup Failed. Please Try Again")
+    }
+  }catch(error){
+    setError("An Error Occurred during signup")
+  }finally{
+    setIsSubmitted(false);
+  }
+    }
+  
+  
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
