@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+    'rest_framework',             # Django REST Framework
+    'rest_framework_simplejwt',     # JWT authentication (SimpleJWT)
+    'corsheaders',                  # CORS headers middleware
+    'channels',                     # Django Channels for WebSocket support
+    'drf_yasg',                     # Swagger for API documentation
 ]
 
 MIDDLEWARE = [
