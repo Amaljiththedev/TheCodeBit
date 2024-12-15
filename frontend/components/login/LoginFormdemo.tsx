@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { FormEvent, useState } from "react";
 import { Label } from "../login/label";
 import { Input } from "../login/Input";
 import { cn } from "@/utils/cn";
@@ -9,11 +9,36 @@ import {
   IconBrandOnlyfans,
 } from "@tabler/icons-react";
 
+interface SignUpFormData {
+  username: string;
+  email: string;
+  password: string;
+}
 export function LoginFormDemo() {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Login form submitted");
+
+  const [formData,setFormData]=useState<SignUpFormData>({
+    username :'',
+    email: '',
+    password :'',
+  })
+  const [error,setError]=useState<string>('')
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+  const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const {name,value}=e.target;
+    setFormData((prevData)=>({
+      ...prevData,
+      [name]:value,
+    }));
   };
+
+  const handleSubmit = async (e:React.FormEvent)=>{
+    e.preventDefault();
+  }
+
+  const userData ={ ...formData } 
+
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">

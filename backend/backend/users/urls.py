@@ -1,6 +1,7 @@
+# users/urls.py
 from django.urls import path
-from .views import Helloworld
+from . import views
 
 urlpatterns = [
-    path('hello-world/', Helloworld.as_view(), name='hello-world'),
+    path('sign_up/', views.sign_up, name='sign_up'),
 ]
