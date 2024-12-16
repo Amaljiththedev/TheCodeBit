@@ -1,23 +1,61 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/login/label";
 import { Input } from "@/components/login/Input";
 import { cn } from "@/utils/cn";
-import {
-  IconBrandGithub,
-  IconBrandGoogle,
-} from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandGoogle } from "@tabler/icons-react";
+import api from "@/utils/api";
+
+interface SignUpFormData {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+}
 
 const Signup = () => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submitted");
+  const [formData, setFormData] = useState<SignUpFormData>({
+    first_name: "",
+    last_name: "",
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState<string>('');
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitted(true);  // Set form submission state
+
+    console.log("Submitting form data:", formData);  // Log form data
+
+    try {
+      const response = await api.post("/users/sign_up/", formData);
+
+      if (response.status === 201) {  // Check for successful response status
+        alert("Signup successful!");
+        // Reset form or redirect user to login page
+      } else {
+        setError("Signup failed. Please try again.");
+      }
+    } catch (error) {
+      setError("An error occurred during signup.");
+    } finally {
+      setIsSubmitted(false);  // Reset submission state
+    }
+  };
+
   return (
     <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-black">
-      <h2 className="font-bold text-xl text-neutral-200">
-        Welcome to Thecodebit
-      </h2>
+      <h2 className="font-bold text-xl text-neutral-200">Welcome to Thecodebit</h2>
       <p className="text-sm max-w-sm mt-2 text-neutral-300">
         Sign up to Thecodebit to access cutting-edge real-time collaboration tools.
       </p>
@@ -25,32 +63,63 @@ const Signup = () => {
       <form className="my-8" onSubmit={handleSubmit}>
         <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
           <LabelInputContainer>
-            <Label htmlFor="firstname">First Name</Label>
-            <Input id="firstname" placeholder="John" type="text" />
+            <Label htmlFor="first_name">First Name</Label>
+            <Input
+              id="first_name"
+              placeholder="Tyler"
+              type="text"
+              name="first_name"  // Updated to match the backend field name
+              value={formData.first_name}
+              onChange={handleChange}
+            />
           </LabelInputContainer>
           <LabelInputContainer>
-            <Label htmlFor="lastname">Last Name</Label>
-            <Input id="lastname" placeholder="Doe" type="text" />
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input
+              id="last_name"
+              placeholder="Durden"
+              type="text"
+              name="last_name"  // Updated to match the backend field name
+              value={formData.last_name}
+              onChange={handleChange}
+            />
           </LabelInputContainer>
         </div>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" placeholder="johndoe@example.com" type="email" />
+          <Input
+            id="email"
+            placeholder="projectmayhem@fc.com"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" placeholder="••••••••" type="password" />
+          <Input
+            id="password"
+            placeholder="••••••••"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
         </LabelInputContainer>
 
         <button
           className="bg-gradient-to-br relative group/btn from-zinc-900 to-zinc-900 block bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
+          disabled={isSubmitted}
         >
           Sign up &rarr;
           <BottomGradient />
         </button>
 
-        <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+        {error && <div className="text-red-500 mt-4">{error}</div>}
+
+        <div className="bg-gradient-to-r from-transparent  via-neutral-700 to-transparent my-8 h-[1px] w-full" />
 
         <div className="flex flex-col space-y-4">
           <button
