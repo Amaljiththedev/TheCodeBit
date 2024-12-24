@@ -8,8 +8,8 @@ const Navbar = () => {
     <nav className="flex items-center justify-between bg-black text-white px-4 py-2">
       {/* Branding */}
       <div className="flex items-center gap-2">
-        <AiOutlineRobot className="text-2xl" />
-        <span className="text-xl font-bold">CodeBit AI</span>
+        
+        <span className="text-xl font-bold">CodeBiT</span>
       </div>
 
       {/* Main Tools */}

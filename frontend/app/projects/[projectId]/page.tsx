@@ -87,7 +87,7 @@ const Page = () => {
       {/* Sidebar */}
       <aside className="w-64 border-r  text-gray-300 p-4">
         <h2 className="text-lg font-bold mb-4">Project Explorer</h2>
-        <Tree data={data} onUpdate={handleUpdate} onNodeClick={handleClick} />
+        <Tree data={data} onUpdate={handleUpdate} onNodeClick={handleClick} children={undefined} />
       </aside>
 
       {/* Main Content */}
