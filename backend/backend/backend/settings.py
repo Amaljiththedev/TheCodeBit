@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'channels',                     # Django Channels for WebSocket support
     'drf_yasg',                     # Swagger for API documentation
     'users',
+    'projects',
 ]
 
 MIDDLEWARE = [
