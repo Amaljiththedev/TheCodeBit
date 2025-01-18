@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_yasg',                     # Swagger for API documentation
     'users',
     'projects',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

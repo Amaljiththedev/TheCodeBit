@@ -5,12 +5,11 @@ from .models import Project, File
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
-        Model=Project
+        model=Project
         fields="__all__"
 
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
-        Model=File
-        Fields="__all__"
-
+        model=File
+        fields="__all__"
 
