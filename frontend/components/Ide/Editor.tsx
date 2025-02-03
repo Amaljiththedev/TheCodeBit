@@ -1,79 +1,97 @@
-import React, { useState } from "react";
-import MonacoEditor from "@monaco-editor/react";  // Correct import
+import React, { useEffect, useState } from "react";
+import MonacoEditor from "@monaco-editor/react";
 
-const IdeEditor: React.FC = () => {
-  const [code, setCode] = useState<string>("// Write your code here");
-  const [language, setLanguage] = useState<string>("javascript");
-  const [theme, setTheme] = useState<string>("vs-dark");
-  const [fontSize, setFontSize] = useState<number>(14);
+interface IdeEditorProps {
+  content?: string;
+  language?: string;
+  theme?: string;
+  fontSize?: number;
+  onContentChange?: (newValue: string) => void;
+}
+
+const IdeEditor: React.FC<IdeEditorProps> = ({
+  content = "// Write your code here...",
+  language = "javascript",
+  theme = "vs-dark",
+  fontSize = 14,
+  onContentChange,
+}) => {
+  const [code, setCode] = useState(content);
+  const [editorLanguage, setEditorLanguage] = useState(language);
+  const [editorTheme, setEditorTheme] = useState(theme);
+  const [editorFontSize, setEditorFontSize] = useState(fontSize);
+
+  useEffect(() => {
+    setCode(content);
+  }, [content]);
 
   const handleEditorChange = (value: string | undefined) => {
     setCode(value || "");
-  };
-
-  const handleLanguageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(event.target.value);
-  };
-
-  const handleThemeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setTheme(event.target.value);
-  };
-
-  const handleFontSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFontSize(Number(event.target.value));
+    onContentChange?.(value || ""); // Notify parent component if needed
   };
 
   return (
-    <div className="h-screen w-screen flex flex-row bg-gray-100">
-      {/* Sidebar: Mimicking VSCode file explorer */}
+    <div className="h-full flex flex-col">
+      {/* Toolbar */}
+      <div className="h-12 bg-black text-white flex items-center justify-between px-4">
+        <div className="flex items-center space-x-4">
+          <span className="text-sm font-medium">Editing: {editorLanguage.toUpperCase()}</span>
 
-      {/* Main Content Area */}
-      <div className="flex-grow flex flex-col">
-        {/* Top Bar: Mimicking VSCode with file information and settings */}
-        <div className="h-12 bg-black text-white flex items-center justify-between px-4">
-          <div className="flex items-center space-x-4">
-            <div className="text-sm font-medium">Untitled - {language.toUpperCase()}</div>
-            <div className="flex items-center space-x-2">
-              <select
-                value={language}
-                onChange={handleLanguageChange}
-                className="bg-black text-white px-2 py-1 rounded"
-              >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-                <option value="typescript">TypeScript</option>
-                <option value="java">Java</option>
-                <option value="html">HTML</option>
-              </select>
-            </div>
-          </div>
-        </div>
+          {/* Language Selector */}
+          <select
+            value={editorLanguage}
+            onChange={(e) => setEditorLanguage(e.target.value)}
+            className="bg-black text-white px-2 py-1 rounded"
+          >
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="typescript">TypeScript</option>
+            <option value="java">Java</option>
+            <option value="html">HTML</option>
+          </select>
 
-        {/* Monaco Editor */}
-        <div className="flex-grow">
-          <MonacoEditor
-            language={language}
-            value={code}
-            theme={theme}
-            fontSize={15}
-            onChange={handleEditorChange}
-            height="100%"
-            options={{
-              automaticLayout: true,
-              minimap: { enabled: false },
-              wordWrap: "on",
-              suggestOnTriggerCharacters: true, // Enable IntelliSense trigger on characters like `.`, `(`, etc.
-              quickSuggestions: true, // Enable quick suggestions (Autocompletion)
-              suggest: {
-                filterGraceful: true,
-                showWords: true,
-              },
-              parameterHints: true, // Enable parameter hints in functions/methods
-              hover: true, // Show hover tooltips with info about code
-              snippetSuggestions: "inline", // Allow snippets to be shown inline
-            }}
+          {/* Theme Selector */}
+          <select
+            value={editorTheme}
+            onChange={(e) => setEditorTheme(e.target.value)}
+            className="bg-black text-white px-2 py-1 rounded"
+          >
+            <option value="vs-dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+
+          {/* Font Size */}
+          <input
+            type="number"
+            value={editorFontSize}
+            onChange={(e) => setEditorFontSize(Number(e.target.value))}
+            className="w-16 px-2 py-1 bg-black text-white rounded"
+            min={10}
+            max={24}
           />
         </div>
+      </div>
+
+      {/* Monaco Editor */}
+      <div className="flex-grow">
+        <MonacoEditor
+          language={editorLanguage}
+          value={code}
+          theme={editorTheme}
+          fontSize={editorFontSize}
+          height="100%"
+          onChange={handleEditorChange}
+          options={{
+            automaticLayout: true,
+            minimap: { enabled: false },
+            wordWrap: "on",
+            suggestOnTriggerCharacters: true,
+            quickSuggestions: true,
+            parameterHints: true,
+            hover: true,
+            snippetSuggestions: "inline",
+          }}
+        />
       </div>
     </div>
   );
