@@ -9,7 +9,14 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields="__all__"
 
 class FileSerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField()
+
     class Meta:
-        model=File
-        fields="__all__"
+        model = File
+        fields = ["id", "name", "is_folder", "path", "size", "file_type", "created_at", "updated_at", "children"]
+
+    def get_children(self, obj):
+        if obj.is_folder:  # Only folders can have children
+            return FileSerializer(obj.children.all(), many=True).data
+        return []
 

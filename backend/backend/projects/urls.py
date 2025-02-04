@@ -4,7 +4,7 @@ from .views import ProjectViewSet, FileViewSet
 
 router = DefaultRouter()
 router.register(r'projects', ProjectViewSet)  # Route for projects
-router.register(r'files', FileViewSet)       # Route for files
+router.register(r'files', FileViewSet,basename='file')       # Route for files
 
 urlpatterns = [
     path('', include(router.urls)),  # Include the routes from the router

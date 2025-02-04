@@ -11,15 +11,18 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class File(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)  # Link to Project
     name = models.CharField(max_length=255)
-    path = models.TextField()
     is_folder = models.BooleanField(default=False)
-    parent_file = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
-    size = models.BigIntegerField()
-    file_type = models.CharField(max_length=50)
+    parent_file = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="children")
+    project_id = models.IntegerField()  # Assuming a project-based file system
+    path = models.CharField(max_length=1024, unique=True)
+    size = models.BigIntegerField(default=0)
+    file_type = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return self.name

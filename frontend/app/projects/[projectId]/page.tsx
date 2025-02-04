@@ -2,76 +2,86 @@
 
 import React, { useState, useEffect } from "react";
 import IdeEditor from "@/components/Ide/Editor";
-import Tree from "@/components/Tree/Tree";
 import TerminalComponent from "@/components/Ide/terminal";
 import Navbar from "@/components/navbar/Navbar";
+import  FileTreeDemo  from "@/components/Tree/FileDemo";
 
 // Define types for FileNode
 interface FileNode {
-  id: number;
+  id: number; // IDs are returned as numbers
   name: string;
   is_folder: boolean;
-  path: string;
-  contents?: FileNode[]; // Recursive contents for nested folders
+  children?: FileNode[];
+  path?: string;
+  size?: number;
+  file_type?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-// Define API response types
-interface FileAPIResponse {
-  id: number;
-  name: string;
-  is_folder: boolean;
-  path: string;
-  contents?: FileAPIResponse[];
+// Define API response type (matches FileNode)
+interface FileAPIResponse extends FileNode {
+  children?: FileAPIResponse[];
 }
 
+// Define the IDEPage component
 const IDEPage: React.FC = () => {
   const [data, setData] = useState<FileNode[]>([]);
-  const [selectedFile, setSelectedFile] = useState<number | null>(null);
+  const [selectedFile, setSelectedFile] = useState<FileNode | null>(null);
   const [fileContent, setFileContent] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const projectId = 1; // TODO: Replace with dynamic project ID if needed
 
   // Fetch files for a given project
-  const fetchFiles = async (parentId: number | null = null) => {
+  const fetchFiles = async () => {
     try {
-      const projectId = 2; // Replace with dynamic project ID if needed
-      const response = await fetch(
-        `http://localhost:8000/api/files/content/?file_id=${parentId}`
-      );
-      const data = await response.json();
-      setData(mapFilesToTree(data.folder_contents || []));
-    } catch (error) {
-      console.error("Error fetching files:", error);
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/files/?project_id=${projectId}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch files: ${response.statusText}`);
+      }
+
+      const files: FileAPIResponse[] = await response.json();
+      console.log("Fetched files:", files); // ✅ Debugging API response
+      setData(files);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching files:", err);
+      setError("Failed to load project files.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Fetch file content for selected file
+  // Fetch file content when a file is clicked
   const fetchFileContent = async (fileId: number) => {
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/files/content?file_id=${fileId}`
-      );
-      const result = await response.json();
-      if (result.content) {
-        setFileContent(result.content);
-        setSelectedFile(fileId);
-      } else {
-        console.error("Error fetching file content:", result.error);
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/files/content?file_id=${fileId}`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch file content: ${response.statusText}`);
       }
-    } catch (error) {
-      console.error("Error fetching file content:", error);
+
+      const result = await response.json();
+      console.log("File Content:", result); // ✅ Debugging file content response
+
+      setFileContent(result.content || "");
+      setSelectedFile(data.find((file) => file.id === fileId) || null);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching file content:", err);
+      setError("Unable to fetch file content.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Convert flat list to hierarchical tree (for folder structure)
-  const mapFilesToTree = (files: FileAPIResponse[]): FileNode[] => {
-    return files.map((file) => ({
-      id: file.id,
-      name: file.name,
-      is_folder: file.is_folder,
-      path: file.path,
-      contents: file.contents ? mapFilesToTree(file.contents) : [],
-    }));
-  };
-
+  // Fetch files on component mount
   useEffect(() => {
     fetchFiles();
   }, []);
@@ -83,17 +93,18 @@ const IDEPage: React.FC = () => {
         {/* Sidebar - File Explorer */}
         <aside className="w-64 border-r text-white p-4">
           <h2 className="text-lg font-bold mb-4">Project Explorer</h2>
-          <Tree 
-            data={data} 
-            onNodeClick={(node) => fetchFileContent(node.id)} 
-          />
+
+          {loading && <p className="text-gray-400">Loading files...</p>}
+          {error && <p className="text-red-500">{error}</p>}
+
+          {!loading && !error && <FileTreeDemo data={data} onFileClick={fetchFileContent} />}
         </aside>
 
         {/* Main Content */}
         <main className="flex-1 bg-black text-white flex flex-col">
-          <header className="border-b border-black p-4">
+          <header className="border-b border-gray-700 p-4">
             <h1 className="text-xl font-bold">
-              {selectedFile ? `Editing: ${selectedFile}` : "Select a file"}
+              {selectedFile ? `Editing: ${selectedFile.name}` : "Select a file"}
             </h1>
           </header>
 
@@ -105,12 +116,15 @@ const IDEPage: React.FC = () => {
             </div>
 
             {/* Terminal */}
-            <div className="h-40 bg-black border-t">
+            <div className="h-40 bg-black border-t border-gray-700">
               <TerminalComponent />
             </div>
           </div>
         </main>
       </div>
+
+      {/* Error Message */}
+      {error && <div className="text-red-500 p-4">{error}</div>}
     </>
   );
 };
